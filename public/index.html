@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Shortener</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 60px auto; padding: 0 20px; background: #0f172a; color: #e2e8f0; }
+  h1 { font-size: 24px; }
+  form { display: flex; gap: 8px; margin: 24px 0; }
+  input { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; }
+  button { padding: 10px 16px; border-radius: 8px; border: none; background: #4f8ef7; color: white; cursor: pointer; font-weight: 600; }
+  button:hover { background: #3b7ce0; }
+  #result { margin: 16px 0; padding: 12px; border-radius: 8px; background: #1e293b; display: none; word-break: break-all; }
+  #result a { color: #6ee7f7; }
+  table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #334155; font-size: 14px; }
+  #error { color: #f87171; margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+  <h1>URL Shortener</h1>
+  <form id="shorten-form">
+    <input id="url-input" type="text" placeholder="https://example.com/some/long/url" required>
+    <button type="submit">Shorten</button>
+  </form>
+  <div id="error"></div>
+  <div id="result"></div>
+  <table id="url-table">
+    <thead><tr><th>Short URL</th><th>Original</th><th>Clicks</th></tr></thead>
+    <tbody id="url-table-body"></tbody>
+  </table>
+
+<script>
+async function loadUrls() {
+  const res = await fetch('/api/urls');
+  const urls = await res.json();
+  const body = document.getElementById('url-table-body');
+  body.innerHTML = urls.map(u => `
+    <tr>
+      <td><a href="${u.shortUrl}" target="_blank">${u.shortUrl}</a></td>
+      <td>${u.originalUrl}</td>
+      <td>${u.clicks}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('shorten-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const url = document.getElementById('url-input').value;
+  const errorEl = document.getElementById('error');
+  const resultEl = document.getElementById('result');
+  errorEl.style.display = 'none';
+  resultEl.style.display = 'none';
+
+  const res = await fetch('/api/urls/shorten', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    errorEl.textContent = data.error || 'Something went wrong';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  resultEl.innerHTML = `Short URL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
+  resultEl.style.display = 'block';
+  document.getElementById('url-input').value = '';
+  loadUrls();
+});
+
+loadUrls();
+</script>
+</body>
+</html>

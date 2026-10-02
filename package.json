@@ -1,0 +1,23 @@
+{
+  "name": "url-shortener-api",
+  "version": "1.0.0",
+  "description": "A layered-architecture URL shortener API (routes -> controllers -> services -> repositories -> models) built with Express and MongoDB.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["url-shortener", "express", "mongodb", "mongoose"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
